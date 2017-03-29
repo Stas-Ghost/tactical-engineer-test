@@ -80,8 +80,17 @@ object TacticalEngineeringUtils {
    * @return Some value representing the average daily volume (could be 0.00), or None if no volume was found given the parameters.
    */
   def calcAvgDailyVolume(data: SortedMap[Int, Option[Double]], isBusinessDay: Int => Boolean, range: Int): Option[Double] = {
-    // FIXME: replace this with an implementation.
-    Some(0.0)
+    val volumes =
+      data
+        .filterKeys(isBusinessDay)
+        .filter(_._2.isDefined)
+        .take(range)
+        .values
+        .flatten
+
+    volumes
+      .reduceLeftOption(_ + _)
+      .map(_ / volumes.size)
   }
 
   /**
