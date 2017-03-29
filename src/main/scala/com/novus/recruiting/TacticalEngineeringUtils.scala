@@ -23,8 +23,33 @@ object TacticalEngineeringUtils {
    *         santized name, returned in the same order as the input [[worksheets]].
    */
   def sanitizeWorksheetNames(worksheets: Seq[String]): Seq[(String, String)] = {
-    // FIXME: replace this with an implementation.
-    worksheets.map(s => s -> s)
+    val maxLength = 31
+    var usedNames = Map("" -> 1)
+
+    def createUniqueName(name: String): String = {
+      var newName = name
+      val usesCount = usedNames getOrElse(name, 0)
+      usedNames = usedNames + (name -> (usesCount + 1))
+
+      if (usesCount > 0) {
+        val allowedLength = maxLength - usesCount.toString.length
+        newName = name.take(allowedLength) + usesCount
+
+        if (usedNames contains newName) {
+          return createUniqueName(newName)
+        }
+
+        usedNames = usedNames + (newName -> 1)
+      }
+
+      newName
+    }
+
+    def processSingle(name: String): String = {
+      createUniqueName(name.take(maxLength).replaceAll("[\\\\?*/\\]\\[]|history|History", ""))
+    }
+
+    worksheets.map(s => s -> processSingle(s))
   }
 
   /**
