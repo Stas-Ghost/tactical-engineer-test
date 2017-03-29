@@ -106,8 +106,15 @@ object TacticalEngineeringUtils {
    * @return A list of lists representing the sub-sequences from the input. original input data.
    */
   def findContiguous(data: Seq[Int]): List[List[Int]] = {
-    // FIXME: replace this with an implementation.
-    List(data.toList)
+    data.foldLeft(List[List[Int]]())(
+      (acc, n) =>
+        acc match {
+          case h :: t => h match {
+            case hh :: ht if hh + 1 == n => (n :: hh :: ht) :: t
+            case _ => List(n) :: h :: t
+          }
+          case _ => List(List(n))
+        }
+    ).map(_.reverse)
   }
-
 }
